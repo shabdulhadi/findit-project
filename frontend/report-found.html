@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report a Found Item — FindIt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="page-found">
+
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M2 16 L11 4.5 H27 A2 2 0 0 1 29 6.5 V25.5 A2 2 0 0 1 27 27.5 H11 L2 16 Z" fill="#2F6F62" stroke="#211B14" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="9.5" cy="16" r="2.2" fill="#FAF7F2" stroke="#211B14" stroke-width="1.3"/>
+    </svg>
+    <span class="brand-text">
+      <span class="brand-word">Find<span>It</span></span>
+      <span class="brand-tag">Campus Lost &amp; Found</span>
+    </span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="report-lost.html">Report Lost</a>
+    <a href="report-found.html" class="active">Report Found</a>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <span class="eyebrow">Found item report</span>
+  <h1>Report a found item</h1>
+  <p>Thank you for looking out for your campus. A couple of details helps us find the owner fast.</p>
+</section>
+
+<div class="form-wrap">
+  <form class="ticket-form" method="post" action="#">
+    <span class="form-kicker">Claim ticket — found item</span>
+    <div class="perf"></div>
+
+    <div class="field">
+      <label for="title">Item title <span class="req">*</span></label>
+      <input type="text" id="title" name="title" placeholder="e.g. Silver iPhone with cracked case" required>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label for="category">Category <span class="req">*</span></label>
+        <select id="category" name="category" required>
+          <option value="" disabled selected>Choose one</option>
+          <option>Bag / Backpack</option>
+          <option>Electronics</option>
+          <option>ID / Cards</option>
+          <option>Keys</option>
+          <option>Water Bottle</option>
+          <option>Clothing</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="date_found">Date found <span class="req">*</span></label>
+        <input type="date" id="date_found" name="date_found" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="location">Location found <span class="req">*</span></label>
+      <input type="text" id="location" name="location" placeholder="e.g. Cafeteria, near the counter" required>
+    </div>
+
+    <div class="field">
+      <label for="description">Description <span class="req">*</span></label>
+      <textarea id="description" name="description" placeholder="Colour, brand, any identifying details you noticed." required></textarea>
+    </div>
+
+    <div class="field">
+      <label for="photo">Photo <span class="req">*</span></label>
+      <div class="file-drop">
+        <strong>Click to upload</strong>
+        A clear photo of the item you found
+        <input type="file" id="photo" name="photo" accept="image/*" required>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-block">Submit found report</button>
+
+    <p class="trust-note">Your contact details stay private until we confirm a match with the owner.</p>
+  </form>
+</div>
+
+<footer class="site-footer">
+  <span><strong>FindIt</strong> — built by students, for students.</span>
+  <span>Campus Lost &amp; Found Recovery Network</span>
+</footer>
+
+</body>
+</html>

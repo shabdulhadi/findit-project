@@ -1,0 +1,408 @@
+/* FindIt — shared styles
+   Visual concept: the site reads like a claim-ticket counter.
+   Lost reports and found reports are literally styled as ticket stubs. */
+
+:root {
+  --paper: #FAF7F2;
+  --paper-dim: #F1EAD9;
+  --ink: #211B14;
+  --ink-soft: #6B5F52;
+  --line: #D9C7A3;
+  --tag: #E4D2AE;
+
+  --lost: #B5432E;
+  --lost-dark: #8B3322;
+  --lost-tint: #F3E1DA;
+
+  --found: #2F6F62;
+  --found-dark: #1E4A41;
+  --found-tint: #DCEAE6;
+
+  --accent: var(--found);
+  --accent-dark: var(--found-dark);
+  --accent-tint: var(--found-tint);
+
+  --radius: 4px;
+  --shadow: 0 2px 0 rgba(33, 27, 20, 0.08);
+}
+
+body.page-lost { --accent: var(--lost); --accent-dark: var(--lost-dark); --accent-tint: var(--lost-tint); }
+body.page-found { --accent: var(--found); --accent-dark: var(--found-dark); --accent-tint: var(--found-tint); }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent-dark);
+  outline-offset: 2px;
+}
+
+/* ---------- Header ---------- */
+header.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--paper);
+  border-bottom: 2px dashed var(--line);
+  padding: 16px 6vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+}
+
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+
+.brand-word {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.brand-word span { color: var(--found); }
+
+.brand-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+nav.site-nav { display: flex; gap: 26px; }
+
+nav.site-nav a {
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 4px 2px 6px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+nav.site-nav a:hover { color: var(--ink); }
+nav.site-nav a.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* ---------- Hero (index) ---------- */
+.hero {
+  padding: 84px 6vw 56px;
+}
+
+.hero-inner { max-width: 760px; }
+
+.eyebrow {
+  display: inline-block;
+  background: var(--tag);
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 2px;
+}
+
+h1.headline {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: clamp(2.1rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 20px 0 20px;
+}
+
+h1.headline .accent { color: var(--found); }
+
+.subhead {
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+  max-width: 540px;
+  margin: 0 0 44px;
+}
+
+/* ---------- Ticket cards ---------- */
+.ticket-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  padding: 0 6vw 20px;
+  max-width: 1080px;
+}
+
+.ticket {
+  position: relative;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 28px 26px 26px;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ticket:nth-child(1) { transform: rotate(-1.3deg); }
+.ticket:nth-child(2) { transform: rotate(1.3deg); }
+.ticket:hover { transform: rotate(0deg) translateY(-4px); box-shadow: 0 10px 0 rgba(33, 27, 20, 0.06); }
+
+.ticket.is-lost { --accent: var(--lost); --accent-dark: var(--lost-dark); --accent-tint: var(--lost-tint); }
+.ticket.is-found { --accent: var(--found); --accent-dark: var(--found-dark); --accent-tint: var(--found-tint); }
+
+.ticket-kind {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--accent-tint);
+  color: var(--accent-dark);
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+.perf {
+  border-top: 2px dashed var(--line);
+  margin: 18px 2px 18px;
+  position: relative;
+}
+
+.perf::before, .perf::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+.perf::before { left: -27px; }
+.perf::after { right: -27px; }
+
+.ticket h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.28rem;
+  margin: 0 0 10px;
+}
+
+.ticket p.ticket-desc {
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+  margin: 0 0 24px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--accent);
+  color: var(--paper);
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  padding: 13px 22px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  box-shadow: 0 3px 0 var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn:hover { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.btn:active { transform: translateY(3px); box-shadow: none; }
+.btn-block { width: 100%; }
+
+/* ---------- How it works ---------- */
+.how {
+  padding: 64px 6vw 70px;
+  border-top: 2px dashed var(--line);
+  margin-top: 50px;
+}
+
+.how h2 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.5rem;
+  margin: 0 0 36px;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  max-width: 1080px;
+}
+
+.step .num {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--line);
+  margin-bottom: 8px;
+}
+
+.step h4 { margin: 0 0 8px; font-size: 1.05rem; }
+.step p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+
+/* ---------- Footer ---------- */
+footer.site-footer {
+  padding: 32px 6vw 40px;
+  border-top: 2px dashed var(--line);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+footer.site-footer strong { color: var(--ink); }
+
+/* ---------- Form pages ---------- */
+.page-hero { padding: 56px 6vw 8px; }
+.page-hero h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  margin: 16px 0 10px;
+}
+.page-hero p { color: var(--ink-soft); max-width: 540px; margin: 0; }
+
+.form-wrap { padding: 34px 6vw 90px; display: flex; justify-content: center; }
+
+.ticket-form {
+  width: 100%;
+  max-width: 640px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 40px 38px 38px;
+  box-shadow: var(--shadow);
+}
+
+.form-kicker {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+}
+
+.field { margin-bottom: 22px; display: flex; flex-direction: column; gap: 8px; }
+
+.field label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.field label .req { color: var(--accent-dark); margin-left: 3px; }
+.field .hint { font-size: 0.82rem; color: var(--ink-soft); font-family: 'Work Sans', sans-serif; text-transform: none; letter-spacing: normal; }
+
+input[type="text"], input[type="date"], input[type="email"], select, textarea {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper-dim);
+  border: 1.5px solid var(--line);
+  border-radius: 3px;
+  padding: 12px 14px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus { border-color: var(--accent); background: var(--paper); }
+
+textarea { resize: vertical; min-height: 110px; }
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+.file-drop {
+  position: relative;
+  border: 1.5px dashed var(--line);
+  border-radius: 3px;
+  padding: 26px 16px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  background: var(--paper-dim);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.file-drop:hover { border-color: var(--accent); }
+
+.file-drop input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-drop strong {
+  display: block;
+  margin-bottom: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.trust-note {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  header.site-header { padding: 14px 5vw; flex-wrap: wrap; }
+  nav.site-nav { gap: 18px; }
+  .brand-tag { display: none; }
+  .hero { padding: 56px 5vw 40px; }
+  .ticket-row { grid-template-columns: 1fr; padding: 0 5vw 10px; }
+  .how { padding: 48px 5vw 56px; }
+  .steps { grid-template-columns: 1fr; gap: 26px; }
+  footer.site-footer { padding: 28px 5vw 34px; }
+  .page-hero { padding: 40px 5vw 6px; }
+  .form-wrap { padding: 26px 5vw 70px; }
+  .ticket-form { padding: 28px 22px; }
+  .row-2 { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
