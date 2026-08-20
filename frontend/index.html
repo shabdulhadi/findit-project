@@ -3,82 +3,234 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FindIt — Campus Lost &amp; Found Network</title>
+<title>FindIt — Punjab University Network Lost &amp; Found</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="site-header">
   <a class="brand" href="index.html">
-    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M2 16 L11 4.5 H27 A2 2 0 0 1 29 6.5 V25.5 A2 2 0 0 1 27 27.5 H11 L2 16 Z" fill="#2F6F62" stroke="#211B14" stroke-width="1.5" stroke-linejoin="round"/>
-      <circle cx="9.5" cy="16" r="2.2" fill="#FAF7F2" stroke="#211B14" stroke-width="1.3"/>
-    </svg>
+    <span class="brand-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    </span>
     <span class="brand-text">
       <span class="brand-word">Find<span>It</span></span>
-      <span class="brand-tag">Campus Lost &amp; Found</span>
+      <span class="brand-tag">Punjab University Network</span>
     </span>
   </a>
   <nav class="site-nav">
     <a href="index.html" class="active">Home</a>
     <a href="report-lost.html">Report Lost</a>
     <a href="report-found.html">Report Found</a>
+    <a href="#" class="disabled">Browse Items</a>
+    <a href="#" class="disabled">About</a>
   </nav>
+  <div class="header-actions">
+    <button class="icon-btn" type="button" aria-label="Notifications">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="dot"></span>
+    </button>
+    <a class="btn-header" href="login.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+      <span>Login</span>
+    </a>
+  </div>
 </header>
 
 <section class="hero">
-  <div class="hero-inner">
-    <span class="eyebrow">A campus-first way to reunite people with their stuff</span>
-    <h1 class="headline">Lost it on campus?<br><span class="accent">Someone probably found it.</span></h1>
-    <p class="subhead">FindIt matches everyone who's lost something with everyone who's found something — by category, location, and photo — so you're not stuck refreshing group chats hoping for good news.</p>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Now live across the Punjab University network</span>
+      <h1 class="headline">Lost something?<br>We can <span class="accent">help.</span></h1>
+      <p class="subhead">FindIt connects lost items with their owners across every campus in the network — matched automatically by category, location, and photo.</p>
+      <div class="hero-buttons">
+        <a class="btn" href="report-lost.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Report Lost Item
+        </a>
+        <a class="btn btn-outline" href="report-found.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+          Report Found Item
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="floaty f1">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><rect x="9" y="12" width="6" height="4" rx="1"/></svg>
+      </div>
+      <div class="floaty f2">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.8-2 3-2s2.5.5 3 2"/><line x1="14" y1="9" x2="18" y2="9"/><line x1="14" y1="13" x2="18" y2="13"/></svg>
+      </div>
+      <div class="floaty f3">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6"/><path d="M10 2v3.5L8 8v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V8l-2-2.5V2"/></svg>
+      </div>
+      <div class="floaty f4">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M10.8 10.8 20 20"/><path d="M16 16l3 3"/><path d="M13.5 13.5l2.5 2.5"/></svg>
+      </div>
+
+      <form class="search-bar" action="#" onsubmit="return false;">
+        <select id="campusQuickSelect" aria-label="Your campus">
+          <option value="" disabled selected>Your campus</option>
+          <option value="PUCIT Old Campus">PUCIT Old Campus</option>
+          <option value="PUCIT New Campus">PUCIT New Campus</option>
+          <option value="University of the Punjab">University of the Punjab</option>
+          <option value="Johar Town Campus">Johar Town Campus</option>
+          <option value="PUCAD">PUCAD</option>
+          <option value="Hailey College">Hailey College</option>
+          <option value="Oriental College">Oriental College</option>
+          <option value="Pharmacy Department">Pharmacy Department</option>
+        </select>
+        <input type="text" placeholder="Search lost or found items…">
+        <button type="submit" class="btn" aria-label="Search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </form>
+    </div>
   </div>
 </section>
 
-<div class="ticket-row">
-  <article class="ticket is-lost">
-    <span class="ticket-kind">Lost something</span>
-    <div class="perf"></div>
-    <h3>Report what you lost</h3>
-    <p class="ticket-desc">Tell us what it looked like and where you last had it. We'll quietly watch for a match.</p>
-    <a class="btn btn-block" href="report-lost.html">Report a lost item</a>
-  </article>
+<div class="content-grid">
+  <div class="main-col">
 
-  <article class="ticket is-found">
-    <span class="ticket-kind">Found something</span>
-    <div class="perf"></div>
-    <h3>Report what you found</h3>
-    <p class="ticket-desc">Picked something up, or handed it in? Log it here so the owner can actually find it.</p>
-    <a class="btn btn-block" href="report-found.html">Report a found item</a>
-  </article>
+    <div class="panel-card" style="margin-bottom:22px;">
+      <h2>Browse categories</h2>
+      <div class="category-grid">
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></span>
+          <span>Electronics</span>
+        </a>
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><rect x="9" y="12" width="6" height="4" rx="1"/></svg></span>
+          <span>Bags &amp; Backpacks</span>
+        </a>
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.8-2 3-2s2.5.5 3 2"/><line x1="14" y1="9" x2="18" y2="9"/><line x1="14" y1="13" x2="18" y2="13"/></svg></span>
+          <span>ID / Cards</span>
+        </a>
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M10.8 10.8 20 20"/><path d="M16 16l3 3"/><path d="M13.5 13.5l2.5 2.5"/></svg></span>
+          <span>Keys</span>
+        </a>
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6"/><path d="M10 2v3.5L8 8v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V8l-2-2.5V2"/></svg></span>
+          <span>Water Bottles</span>
+        </a>
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4 4 7l2 3 2-1.5V20h8V8.5L18 10l2-3-4-3-2 2h-4Z"/></svg></span>
+          <span>Clothing</span>
+        </a>
+        <a class="category-tile" href="report-lost.html">
+          <span class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></span>
+          <span>Other Items</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-head">
+        <h2>Recently reported items</h2>
+        <a href="#" class="disabled" style="pointer-events:none; opacity:.5;">View All</a>
+      </div>
+      <div class="items-grid">
+        <article class="item-card">
+          <div class="item-thumb">
+            <span class="item-badge found">Found</span>
+            <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          </div>
+          <div class="item-body">
+            <h4>Apple AirPods</h4>
+            <div class="item-meta"><span>PUCIT Old Campus</span><span>2h ago</span></div>
+          </div>
+        </article>
+
+        <article class="item-card">
+          <div class="item-thumb">
+            <span class="item-badge lost">Lost</span>
+            <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><rect x="9" y="12" width="6" height="4" rx="1"/></svg>
+          </div>
+          <div class="item-body">
+            <h4>Brown Leather Wallet</h4>
+            <div class="item-meta"><span>Hailey College</span><span>5h ago</span></div>
+          </div>
+        </article>
+
+        <article class="item-card">
+          <div class="item-thumb">
+            <span class="item-badge found">Found</span>
+            <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6"/><path d="M10 2v3.5L8 8v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V8l-2-2.5V2"/></svg>
+          </div>
+          <div class="item-body">
+            <h4>Blue Water Bottle</h4>
+            <div class="item-meta"><span>Johar Town Campus</span><span>1d ago</span></div>
+          </div>
+        </article>
+
+        <article class="item-card">
+          <div class="item-thumb">
+            <span class="item-badge lost">Lost</span>
+            <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.8-2 3-2s2.5.5 3 2"/><line x1="14" y1="9" x2="18" y2="9"/><line x1="14" y1="13" x2="18" y2="13"/></svg>
+          </div>
+          <div class="item-body">
+            <h4>Student ID Card</h4>
+            <div class="item-meta"><span>University of the Punjab</span><span>2d ago</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="sidebar">
+    <div class="panel-card">
+      <h2>How it works</h2>
+      <div class="howworks-item">
+        <span class="howworks-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h1"/><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/></svg></span>
+        <div>
+          <h4>Report</h4>
+          <p>Report a lost or found item, on your campus.</p>
+        </div>
+      </div>
+      <div class="howworks-item">
+        <span class="howworks-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3 3-5 6-5s6 2 6 5"/><path d="M13 15c2 0 5.5 1.5 5.5 5"/></svg></span>
+        <div>
+          <h4>Match</h4>
+          <p>We help match items with their owners automatically.</p>
+        </div>
+      </div>
+      <div class="howworks-item">
+        <span class="howworks-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <div>
+          <h4>Reunite</h4>
+          <p>Items get returned. Smiles are shared.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card notice-card">
+      <div class="notice-head">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke="none"/></svg>
+        Important notice
+      </div>
+      <p>Check item details carefully before contacting the reporter. For safety, meet only in visible, public campus areas.</p>
+    </div>
+  </aside>
 </div>
-
-<section class="how">
-  <h2>How it works</h2>
-  <div class="steps">
-    <div class="step">
-      <div class="num">01</div>
-      <h4>File a report</h4>
-      <p>Lost something or found something? Add a few details and a photo if you have one — it only takes a couple minutes.</p>
-    </div>
-    <div class="step">
-      <div class="num">02</div>
-      <h4>We look for a match</h4>
-      <p>FindIt compares descriptions, locations, and photos across every report on campus to spot likely matches.</p>
-    </div>
-    <div class="step">
-      <div class="num">03</div>
-      <h4>Get notified</h4>
-      <p>When there's a good match, both people get an email so they can arrange to reconnect and recover the item.</p>
-    </div>
-  </div>
-</section>
 
 <footer class="site-footer">
   <span><strong>FindIt</strong> — built by students, for students.</span>
-  <span>Campus Lost &amp; Found Recovery Network</span>
+  <span>PUCIT Old &amp; New Campus · University of the Punjab · Johar Town · PUCAD · Hailey College · Oriental College · Pharmacy</span>
 </footer>
 
+<script src="script.js"></script>
 </body>
 </html>

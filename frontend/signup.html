@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report a Found Item — FindIt</title>
+<title>Sign Up — FindIt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body class="page-found">
+<body>
 
 <header class="site-header">
   <a class="brand" href="index.html">
@@ -26,7 +26,7 @@
   <nav class="site-nav">
     <a href="index.html">Home</a>
     <a href="report-lost.html">Report Lost</a>
-    <a href="report-found.html" class="active">Report Found</a>
+    <a href="report-found.html">Report Found</a>
     <a href="#" class="disabled">Browse Items</a>
     <a href="#" class="disabled">About</a>
   </nav>
@@ -44,40 +44,40 @@
 
 <section class="page-hero">
   <div class="page-hero-inner">
-    <span class="eyebrow">Found item report</span>
-    <h1>Report a found item</h1>
-    <p>Thank you for looking out for your campus. A couple of details helps us find the owner fast.</p>
+    <span class="eyebrow">Create your account</span>
+    <h1>Join FindIt</h1>
+    <p>One account works across every campus in the network. Sign up once, then report or claim items anytime.</p>
   </div>
 </section>
 
 <div class="form-wrap">
   <form class="form-card" method="post" action="#">
 
-    <p class="form-section-label">Item details</p>
-
     <div class="field">
-      <label for="title">Item title <span class="req">*</span></label>
-      <input type="text" id="title" name="title" placeholder="e.g. Silver iPhone with cracked case" required>
+      <label for="name">Full name <span class="req">*</span></label>
+      <input type="text" id="name" name="name" placeholder="e.g. Ahmed Raza" required>
     </div>
 
     <div class="row-2">
       <div class="field">
-        <label for="category">Category <span class="req">*</span></label>
-        <select id="category" name="category" required>
-          <option value="" disabled selected>Choose one</option>
-          <option>Bag / Backpack</option>
-          <option>Electronics</option>
-          <option>ID / Cards</option>
-          <option>Keys</option>
-          <option>Water Bottle</option>
-          <option>Clothing</option>
-          <option>Other</option>
-        </select>
+        <label for="email">Email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" placeholder="you@university.edu.pk" required>
+      </div>
+      <div class="field">
+        <label for="phone">Phone number <span class="req">*</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="03xx-xxxxxxx" required>
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label for="university_id">University ID <span class="req">*</span></label>
+        <input type="text" id="university_id" name="university_id" placeholder="e.g. PU-CS-2023-045" required>
       </div>
       <div class="field">
         <label for="campus">Campus <span class="req">*</span></label>
         <select id="campus" name="campus" required>
-          <option value="" disabled selected>Where was it found?</option>
+          <option value="" disabled selected>Choose your campus</option>
           <option value="PUCIT Old Campus">PUCIT Old Campus</option>
           <option value="PUCIT New Campus">PUCIT New Campus</option>
           <option value="University of the Punjab">University of the Punjab</option>
@@ -90,33 +90,20 @@
       </div>
     </div>
 
-    <div class="field">
-      <label for="date_found">Date found <span class="req">*</span></label>
-      <input type="date" id="date_found" name="date_found" required>
-    </div>
-
-    <div class="field">
-      <label for="location">Location found <span class="req">*</span></label>
-      <input type="text" id="location" name="location" placeholder="e.g. Cafeteria, near the counter" required>
-    </div>
-
-    <div class="field">
-      <label for="description">Description <span class="req">*</span></label>
-      <textarea id="description" name="description" placeholder="Colour, brand, any identifying details you noticed." required></textarea>
-    </div>
-
-    <div class="field">
-      <label for="photo">Photo <span class="req">*</span></label>
-      <div class="file-drop">
-        <strong>Click to upload</strong>
-        A clear photo of the item you found
-        <input type="file" id="photo" name="photo" accept="image/*" required>
+    <div class="row-2">
+      <div class="field">
+        <label for="password">Password <span class="req">*</span></label>
+        <input type="password" id="password" name="password" placeholder="At least 8 characters" required minlength="8">
+      </div>
+      <div class="field">
+        <label for="confirm_password">Confirm password <span class="req">*</span></label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required minlength="8">
       </div>
     </div>
 
-    <button type="submit" class="btn btn-block">Submit found report</button>
+    <button type="submit" class="btn btn-block">Create account</button>
 
-    <p class="trust-note">We'll email or call you (using your account details) once there's a confirmed match — nothing is shared before that.</p>
+    <p class="trust-note">Already have an account? <a href="login.html" style="color:var(--primary); font-weight:600; text-decoration:none;">Log in instead</a>.</p>
   </form>
 </div>
 
