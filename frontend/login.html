@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — FindIt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <span class="brand-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <span class="brand-word">Find<span>It</span></span>
+      <span class="brand-tag">Punjab University Network</span>
+    </span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="report-lost.html">Report Lost</a>
+    <a href="report-found.html">Report Found</a>
+    <a href="#" class="disabled">Browse Items</a>
+    <a href="#" class="disabled">About</a>
+  </nav>
+  <div class="header-actions">
+    <button class="icon-btn" type="button" aria-label="Notifications">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="dot"></span>
+    </button>
+    <a class="btn-header" href="login.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+      <span>Login</span>
+    </a>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <span class="eyebrow">Welcome back</span>
+    <h1>Log in to FindIt</h1>
+    <p>Log in to report a lost or found item, or check your notifications.</p>
+  </div>
+</section>
+
+<div class="form-wrap">
+  <form class="form-card" method="post" action="#" style="max-width: 460px;">
+
+    <div class="field">
+      <label for="email">Email <span class="req">*</span></label>
+      <input type="email" id="email" name="email" placeholder="you@university.edu.pk" required>
+    </div>
+
+    <div class="field">
+      <label for="password">Password <span class="req">*</span></label>
+      <input type="password" id="password" name="password" placeholder="Your password" required>
+    </div>
+
+    <button type="submit" class="btn btn-block">Log in</button>
+
+    <p class="trust-note">New to FindIt? <a href="signup.html" style="color:var(--primary); font-weight:600; text-decoration:none;">Create an account</a>.</p>
+  </form>
+</div>
+
+<footer class="site-footer">
+  <span><strong>FindIt</strong> — built by students, for students.</span>
+  <span>PUCIT Old &amp; New Campus · University of the Punjab · Johar Town · PUCAD · Hailey College · Oriental College · Pharmacy</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
