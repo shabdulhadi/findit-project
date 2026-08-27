@@ -1,25 +1,56 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
-from backend.models import db, User
+
+# Safe import for direct execution or package-level execution
+try:
+    from models import db, User
+except ImportError:
+    from backend.models import db, User
 
 app = Flask(__name__)
 
-# Replace with your actual PostgreSQL URI, or use SQLite for testing
+# Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findit.db' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_super_secret_key_here' # Needed for sessions
+app.config['SECRET_KEY'] = 'your_super_secret_key_here'
 
 db.init_app(app)
 
-# Create tables if they don't exist
+# Create tables if they do not exist
 with app.app_context():
     db.create_all()
 
-# --- SIGNUP ENDPOINT ---
+
+# --- PAGE ROUTES (GET) ---
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/signup', methods=['GET'])
+def signup_page():
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET'])
+def login_page():
+    return render_template('login.html')
+
+@app.route('/report-lost', methods=['GET'])
+def report_lost_page():
+    return render_template('report-lost.html')
+
+@app.route('/report-found', methods=['GET'])
+def report_found_page():
+    return render_template('report-found.html')
+
+
+# --- AUTHENTICATION API ENDPOINTS (POST) ---
 @app.route('/api/signup', methods=['POST'])
 def signup():
     data = request.get_json()
     
+    if not data:
+        return jsonify({"error": "Invalid JSON data provided"}), 400
+
     # Check if user already exists
     if User.query.filter_by(email=data.get('email')).first():
         return jsonify({"error": "Email already registered"}), 400
@@ -45,28 +76,30 @@ def signup():
         db.session.rollback()
         return jsonify({"error": "Failed to register user", "details": str(e)}), 500
 
-# --- LOGIN ENDPOINT ---
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
     
+    if not data:
+        return jsonify({"error": "Invalid JSON data provided"}), 400
+        
     user = User.query.filter_by(email=data.get('email')).first()
 
     # Check user exists and password is correct
     if user and check_password_hash(user.password_hash, data.get('password')):
-        # Create session
         session['user_id'] = user.id
         return jsonify({"message": "Login successful", "user_id": user.id}), 200
     
     return jsonify({"error": "Invalid email or password"}), 401
 
-# --- LOGOUT ENDPOINT ---
+
 @app.route('/api/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
     return jsonify({"message": "Logged out successfully"}), 200
 
-# --- TEST ENDPOINT ---
+
 @app.route('/api/me', methods=['GET'])
 def get_current_user():
     user_id = session.get('user_id')
@@ -79,6 +112,7 @@ def get_current_user():
         "email": user.email,
         "campus": user.campus
     }), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

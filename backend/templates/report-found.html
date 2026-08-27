@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report a Lost Item — FindIt</title>
+<title>Report a Found Item — FindIt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="page-lost">
+<body class="page-found">
 
 <header class="site-header">
-  <a class="brand" href="index.html">
+  <a class="brand" href="/">
     <span class="brand-icon">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/>
@@ -24,9 +24,9 @@
     </span>
   </a>
   <nav class="site-nav">
-    <a href="index.html">Home</a>
-    <a href="report-lost.html" class="active">Report Lost</a>
-    <a href="report-found.html">Report Found</a>
+    <a href="/">Home</a>
+    <a href="/report-lost">Report Lost</a>
+    <a href="/report-found" class="active">Report Found</a>
     <a href="#" class="disabled">Browse Items</a>
     <a href="#" class="disabled">About</a>
   </nav>
@@ -35,7 +35,7 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       <span class="dot"></span>
     </button>
-    <a class="btn-header" href="login.html">
+    <a class="btn-header" href="/login">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
       <span>Login</span>
     </a>
@@ -44,20 +44,20 @@
 
 <section class="page-hero">
   <div class="page-hero-inner">
-    <span class="eyebrow">Lost item report</span>
-    <h1>Report a lost item</h1>
-    <p>The more detail you give us, the better chance FindIt finds a match. This takes about two minutes.</p>
+    <span class="eyebrow">Found item report</span>
+    <h1>Report a found item</h1>
+    <p>Thank you for looking out for your campus. A couple of details helps us find the owner fast.</p>
   </div>
 </section>
 
 <div class="form-wrap">
-  <form class="form-card" method="POST" action="/api/report-lost" enctype="multipart/form-data">
+  <form class="form-card" method="POST" action="/api/report-found" enctype="multipart/form-data">
 
     <p class="form-section-label">Item details</p>
 
     <div class="field">
       <label for="title">Item title <span class="req">*</span></label>
-      <input type="text" id="title" name="title" placeholder="e.g. Black North Face backpack" required>
+      <input type="text" id="title" name="title" placeholder="e.g. Silver iPhone with cracked case" required>
     </div>
 
     <div class="row-2">
@@ -77,7 +77,7 @@
       <div class="field">
         <label for="campus">Campus <span class="req">*</span></label>
         <select id="campus" name="campus" required>
-          <option value="" disabled selected>Where was it lost?</option>
+          <option value="" disabled selected>Where was it found?</option>
           <option value="PUCIT Old Campus">PUCIT Old Campus</option>
           <option value="PUCIT New Campus">PUCIT New Campus</option>
           <option value="University of the Punjab">University of the Punjab</option>
@@ -91,30 +91,30 @@
     </div>
 
     <div class="field">
-      <label for="date_lost">Date lost <span class="req">*</span></label>
-      <input type="date" id="date_lost" name="date_lost" required>
+      <label for="date_found">Date found <span class="req">*</span></label>
+      <input type="date" id="date_found" name="date_found" required>
     </div>
 
     <div class="field">
-      <label for="location">Last seen location <span class="req">*</span></label>
-      <input type="text" id="location" name="location" placeholder="e.g. Library, 2nd floor near the printers" required>
+      <label for="location">Location found <span class="req">*</span></label>
+      <input type="text" id="location" name="location" placeholder="e.g. Cafeteria, near the counter" required>
     </div>
 
     <div class="field">
       <label for="description">Description <span class="req">*</span></label>
-      <textarea id="description" name="description" placeholder="Colour, brand, stickers, scratches — anything that makes it identifiable." required></textarea>
+      <textarea id="description" name="description" placeholder="Colour, brand, any identifying details you noticed." required></textarea>
     </div>
 
     <div class="field">
-      <label for="photo">Photo <span class="hint">(optional, but helps a lot)</span></label>
+      <label for="photo">Photo <span class="req">*</span></label>
       <div class="file-drop">
         <strong>Click to upload</strong>
-        A similar or reference photo of the item
-        <input type="file" id="photo" name="photo" accept="image/*">
+        A clear photo of the item you found
+        <input type="file" id="photo" name="photo" accept="image/*" required>
       </div>
     </div>
 
-    <button type="submit" class="btn btn-block">Submit lost report</button>
+    <button type="submit" class="btn btn-block">Submit found report</button>
 
     <p class="trust-note">We'll email or call you (using your account details) once there's a confirmed match — nothing is shared before that.</p>
   </form>
@@ -125,6 +125,6 @@
   <span>PUCIT Old &amp; New Campus · University of the Punjab · Johar Town · PUCAD · Hailey College · Oriental College · Pharmacy</span>
 </footer>
 
-<script src="script.js"></script>
+<script src="/static/script.js"></script>
 </body>
 </html>
