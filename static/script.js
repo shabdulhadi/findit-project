@@ -93,3 +93,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// FindIt — show which photo was selected, so the user gets clear
+// confirmation before submitting (backend already saves it fine).
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.file-drop input[type="file"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const drop = input.closest('.file-drop');
+      const title = drop.querySelector('.file-drop-title');
+      const desc = drop.querySelector('.file-drop-desc');
+
+      if (input.files && input.files.length > 0) {
+        drop.classList.add('has-file');
+        if (title) title.textContent = `Selected: ${input.files[0].name}`;
+        if (desc) desc.textContent = 'Click to choose a different photo';
+      } else {
+        drop.classList.remove('has-file');
+        if (title) title.textContent = 'Click to upload';
+        if (desc) desc.textContent = drop.dataset.defaultDesc || '';
+      }
+    });
+  });
+});
