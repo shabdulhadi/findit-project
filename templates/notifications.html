@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — FindIt</title>
+<title>Notifications — FindIt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css">
@@ -44,29 +44,15 @@
 
 <section class="page-hero">
   <div class="page-hero-inner">
-    <span class="eyebrow">Welcome back</span>
-    <h1>Log in to FindIt</h1>
-    <p>Log in to report a lost or found item, or check your notifications.</p>
+    <span class="eyebrow">Your notifications</span>
+    <h1>Notifications</h1>
+    <p>We'll let you know here as soon as there's a possible match for something you reported.</p>
   </div>
 </section>
 
-<div class="form-wrap">
-  <form class="form-card" method="POST" action="/api/login" style="max-width: 460px;">
-
-    <div class="field">
-      <label for="email">Email <span class="req">*</span></label>
-      <input type="email" id="email" name="email" placeholder="you@university.edu.pk" required>
-    </div>
-
-    <div class="field">
-      <label for="password">Password <span class="req">*</span></label>
-      <input type="password" id="password" name="password" placeholder="Your password" required>
-    </div>
-
-    <button type="submit" class="btn btn-block">Log in</button>
-
-    <p class="trust-note">New to FindIt? <a href="/signup" style="color:var(--primary); font-weight:600; text-decoration:none;">Create an account</a>.</p>
-  </form>
+<div class="notif-wrap">
+  <p class="items-status" id="notifStatus">Loading notifications…</p>
+  <div id="notifList"></div>
 </div>
 
 <footer class="site-footer">
