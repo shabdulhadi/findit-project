@@ -498,13 +498,34 @@ textarea { resize: vertical; min-height: 105px; }
   cursor: pointer;
 }
 
-.file-drop strong {
+.file-drop-title {
   display: block;
   margin-bottom: 4px;
   font-size: 0.9rem;
   color: var(--ink);
   font-weight: 600;
 }
+
+.file-drop-desc { display: block; }
+
+.file-drop-check {
+  display: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--found);
+  align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+
+.file-drop.has-file {
+  border-style: solid;
+  border-color: var(--found);
+  background: var(--found-tint);
+}
+
+.file-drop.has-file .file-drop-check { display: flex; }
+.file-drop.has-file .file-drop-title { color: var(--found-dark); }
+.file-drop.has-file .file-drop-desc { color: var(--found-dark); }
 
 .trust-note {
   font-size: 0.85rem;
