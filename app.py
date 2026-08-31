@@ -1,16 +1,31 @@
 import os
+import difflib
 from datetime import datetime
 from flask import Flask, request, jsonify, session, render_template, redirect, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from models import db, User, LostItem, FoundItem 
+from flask_mail import Mail, Message
+from models import db, User, LostItem, FoundItem, Match, Notification
 
 app = Flask(__name__)
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findit.db' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findit.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_super_secret_key_here'
+
+# --- Email configuration (Flask-Mail) ---
+# TODO: replace with a real Gmail address + App Password before testing.
+# App Password: Google Account > Security > 2-Step Verification > App Passwords
+# (a normal Gmail login password will NOT work here)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'ah5672758@gmail.com'
+app.config['MAIL_PASSWORD'] = 'sehw ueal fplx hkfy'
+app.config['MAIL_DEFAULT_SENDER'] = 'ah5672758@gmail.com'
+
+mail = Mail(app)
 
 # Photo uploads folder setup
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +36,99 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+MATCH_THRESHOLD = 0.4  # tune this later if matches feel too loose or too strict
+
+
+# ==========================================
+#        MATCHING + EMAIL HELPERS
+# ==========================================
+def calculate_match_score(item_a, item_b):
+    """Compares two items (one LostItem, one FoundItem) and returns a 0-1 score."""
+    text_a = f"{item_a.title} {item_a.description or ''}".lower()
+    text_b = f"{item_b.title} {item_b.description or ''}".lower()
+    text_score = difflib.SequenceMatcher(None, text_a, text_b).ratio()
+
+    date_a = getattr(item_a, 'date_lost', None) or getattr(item_a, 'date_found', None)
+    date_b = getattr(item_b, 'date_lost', None) or getattr(item_b, 'date_found', None)
+
+    date_bonus = 0
+    if date_a and date_b:
+        days_apart = abs((date_a - date_b).days)
+        if days_apart <= 3:
+            date_bonus = 0.15
+        elif days_apart <= 7:
+            date_bonus = 0.05
+
+    return min(text_score + date_bonus, 1.0)
+
+
+def send_match_email(to_email, item_title):
+    """Sends the match notification email. Failures are logged, not raised,
+    so a broken email config never blocks the report from saving."""
+    try:
+        msg = Message(
+            subject="FindIt — Possible match found!",
+            recipients=[to_email],
+            body=(
+                f"Good news — we found a possible match for '{item_title}'.\n\n"
+                "Log in to FindIt and check your Notifications page to see the details."
+            )
+        )
+        mail.send(msg)
+    except Exception as e:
+        print(f"[email] Failed to send match email to {to_email}: {e}")
+
+
+def find_and_create_matches(new_item, is_lost):
+    """
+    Looks for candidate matches on the opposite side (lost vs found),
+    filtered to the same campus + category. Creates a Match + two
+    Notifications (and sends two emails) for every candidate that
+    scores above MATCH_THRESHOLD.
+    """
+    if is_lost:
+        candidates = FoundItem.query.filter_by(
+            campus=new_item.campus, category=new_item.category, status='open'
+        ).all()
+    else:
+        candidates = LostItem.query.filter_by(
+            campus=new_item.campus, category=new_item.category, status='open'
+        ).all()
+
+    for candidate in candidates:
+        score = calculate_match_score(new_item, candidate)
+        if score < MATCH_THRESHOLD:
+            continue
+
+        lost_id = new_item.id if is_lost else candidate.id
+        found_id = candidate.id if is_lost else new_item.id
+
+        already_exists = Match.query.filter_by(
+            lost_item_id=lost_id, found_item_id=found_id
+        ).first()
+        if already_exists:
+            continue
+
+        new_match = Match(
+            lost_item_id=lost_id,
+            found_item_id=found_id,
+            match_score=score,
+            status='pending'
+        )
+        db.session.add(new_match)
+        db.session.flush()  # so new_match.id is available below, before commit
+
+        lost_item = LostItem.query.get(lost_id)
+        found_item = FoundItem.query.get(found_id)
+
+        db.session.add(Notification(user_id=lost_item.user_id, match_id=new_match.id, type='match_found'))
+        db.session.add(Notification(user_id=found_item.user_id, match_id=new_match.id, type='match_found'))
+        db.session.commit()
+
+        send_match_email(lost_item.user.email, lost_item.title)
+        send_match_email(found_item.user.email, found_item.title)
+
 
 # ==========================================
 #        FRONTEND PAGE ROUTES (GET)
@@ -50,6 +158,14 @@ def report_lost_page():
 def report_found_page():
     return render_template('report-found.html')
 
+@app.route('/browse')
+def browse_page():
+    return render_template('browse.html')
+
+@app.route('/notifications')
+def notifications_page():
+    return render_template('notifications.html')
+
 # Route to serve uploaded photos
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -62,7 +178,7 @@ def uploaded_file(filename):
 @app.route('/api/signup', methods=['POST'])
 def signup():
     data = request.get_json() if request.is_json else request.form
-    
+
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
@@ -71,7 +187,7 @@ def signup():
 
     if confirm_password and password != confirm_password:
         return jsonify({"error": "Passwords do not match"}), 400
-    
+
     if User.query.filter_by(email=data.get('email')).first():
         return jsonify({"error": "Email already registered"}), 400
 
@@ -100,7 +216,7 @@ def signup():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json() if request.is_json else request.form
-    
+
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
@@ -112,7 +228,7 @@ def login():
         if not request.is_json:
             return redirect('/')
         return jsonify({"message": "Login successful", "user_id": user.id}), 200
-    
+
     if not request.is_json:
         return render_template('login.html', error="Invalid email or password")
     return jsonify({"error": "Invalid email or password"}), 401
@@ -161,6 +277,10 @@ def report_lost():
     try:
         db.session.add(new_lost_item)
         db.session.commit()
+
+        # Day 4: look for a matching found item and notify both sides
+        find_and_create_matches(new_lost_item, is_lost=True)
+
         if not request.is_json:
             return redirect('/')
         return jsonify({"message": "Lost item reported successfully!"}), 201
@@ -212,12 +332,85 @@ def report_found():
     try:
         db.session.add(new_found_item)
         db.session.commit()
+
+        # Day 4: look for a matching lost item and notify both sides
+        find_and_create_matches(new_found_item, is_lost=False)
+
         if not request.is_json:
             return redirect('/')
         return jsonify({"message": "Found item reported successfully!"}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to submit report", "details": str(e)}), 500
+
+
+@app.route('/api/items', methods=['GET'])
+def get_items():
+    """Powers the Browse Items page. Supports ?type=lost|found, ?campus=, ?category="""
+    item_type = request.args.get('type')
+    campus = request.args.get('campus')
+    category = request.args.get('category')
+
+    results = []
+
+    if item_type != 'found':
+        query = LostItem.query.filter_by(status='open')
+        if campus:
+            query = query.filter_by(campus=campus)
+        if category:
+            query = query.filter_by(category=category)
+        for item in query.order_by(LostItem.created_at.desc()).all():
+            results.append({
+                "id": item.id,
+                "type": "lost",
+                "title": item.title,
+                "category": item.category,
+                "campus": item.campus,
+                "location": item.location,
+                "photo_url": item.photo_url,
+                "created_at": item.created_at.isoformat() if item.created_at else None
+            })
+
+    if item_type != 'lost':
+        query = FoundItem.query.filter_by(status='open')
+        if campus:
+            query = query.filter_by(campus=campus)
+        if category:
+            query = query.filter_by(category=category)
+        for item in query.order_by(FoundItem.created_at.desc()).all():
+            results.append({
+                "id": item.id,
+                "type": "found",
+                "title": item.title,
+                "category": item.category,
+                "campus": item.campus,
+                "location": item.location,
+                "photo_url": item.photo_url,
+                "created_at": item.created_at.isoformat() if item.created_at else None
+            })
+
+    results.sort(key=lambda x: x['created_at'] or '', reverse=True)
+    return jsonify(results), 200
+
+
+@app.route('/api/my-notifications', methods=['GET'])
+def get_my_notifications():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    notifications = Notification.query.filter_by(user_id=user_id) \
+        .order_by(Notification.sent_at.desc()).all()
+
+    return jsonify([
+        {
+            "id": n.id,
+            "type": n.type,
+            "is_read": n.is_read,
+            "sent_at": n.sent_at.isoformat() if n.sent_at else None,
+            "match_id": n.match_id
+        } for n in notifications
+    ]), 200
 
 
 @app.route('/api/logout', methods=['POST'])
@@ -231,7 +424,7 @@ def get_current_user():
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"error": "Not logged in"}), 401
-    
+
     user = User.query.get(user_id)
     return jsonify({
         "name": user.name,

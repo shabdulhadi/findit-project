@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — FindIt</title>
+<title>Browse Items — FindIt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css">
@@ -27,7 +27,7 @@
     <a href="/">Home</a>
     <a href="/report-lost">Report Lost</a>
     <a href="/report-found">Report Found</a>
-    <a href="/browse">Browse Items</a>
+    <a href="/browse" class="active">Browse Items</a>
     <a href="#" class="disabled">About</a>
   </nav>
   <div class="header-actions">
@@ -44,29 +44,44 @@
 
 <section class="page-hero">
   <div class="page-hero-inner">
-    <span class="eyebrow">Welcome back</span>
-    <h1>Log in to FindIt</h1>
-    <p>Log in to report a lost or found item, or check your notifications.</p>
+    <span class="eyebrow">Browse reports</span>
+    <h1>Browse lost &amp; found items</h1>
+    <p>Everything currently reported across the network. Filter by campus or category to narrow it down.</p>
   </div>
 </section>
 
-<div class="form-wrap">
-  <form class="form-card" method="POST" action="/api/login" style="max-width: 460px;">
+<div class="browse-wrap">
+  <div class="filter-bar">
+    <select id="filterType" aria-label="Filter by type">
+      <option value="">All types</option>
+      <option value="lost">Lost</option>
+      <option value="found">Found</option>
+    </select>
+    <select id="filterCampus" aria-label="Filter by campus">
+      <option value="">All campuses</option>
+      <option value="PUCIT Old Campus">PUCIT Old Campus</option>
+      <option value="PUCIT New Campus">PUCIT New Campus</option>
+      <option value="University of the Punjab">University of the Punjab</option>
+      <option value="Johar Town Campus">Johar Town Campus</option>
+      <option value="PUCAD">PUCAD</option>
+      <option value="Hailey College">Hailey College</option>
+      <option value="Oriental College">Oriental College</option>
+      <option value="Pharmacy Department">Pharmacy Department</option>
+    </select>
+    <select id="filterCategory" aria-label="Filter by category">
+      <option value="">All categories</option>
+      <option value="Bag / Backpack">Bag / Backpack</option>
+      <option value="Electronics">Electronics</option>
+      <option value="ID / Cards">ID / Cards</option>
+      <option value="Keys">Keys</option>
+      <option value="Water Bottle">Water Bottle</option>
+      <option value="Clothing">Clothing</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
 
-    <div class="field">
-      <label for="email">Email <span class="req">*</span></label>
-      <input type="email" id="email" name="email" placeholder="you@university.edu.pk" required>
-    </div>
-
-    <div class="field">
-      <label for="password">Password <span class="req">*</span></label>
-      <input type="password" id="password" name="password" placeholder="Your password" required>
-    </div>
-
-    <button type="submit" class="btn btn-block">Log in</button>
-
-    <p class="trust-note">New to FindIt? <a href="/signup" style="color:var(--primary); font-weight:600; text-decoration:none;">Create an account</a>.</p>
-  </form>
+  <p class="items-status" id="itemsStatus">Loading items…</p>
+  <div class="items-grid" id="itemsGrid" style="margin-top:0;"></div>
 </div>
 
 <footer class="site-footer">
