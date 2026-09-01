@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 from models import db, User, LostItem, FoundItem, Match, Notification
+from flask_mail import Mail
+from matching import find_matches
 
 app = Flask(__name__)
 
@@ -13,6 +15,15 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findit.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_super_secret_key_here'
+
+
+# Mail Configuration (Use your Gmail App Password here)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'muhammadhanzla7182@gmail.com'
+app.config['MAIL_PASSWORD'] = 'utfk hhuk sefl cbes'
+mail = Mail(app)
 
 # --- Email configuration (Flask-Mail) ---
 # TODO: replace with a real Gmail address + App Password before testing.
@@ -238,8 +249,6 @@ def login():
 def report_lost():
     user_id = session.get('user_id')
     if not user_id:
-        if not request.is_json:
-            return redirect('/login')
         return jsonify({"error": "Unauthorized. Please log in to report an item."}), 401
 
     title = request.form.get('title')
@@ -257,44 +266,33 @@ def report_lost():
     photo_url = None
     if 'photo' in request.files:
         file = request.files['photo']
-        if file and file.filename != '':
+        if file.filename != '':
             filename = secure_filename(file.filename)
             unique_name = f"lost_{user_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
             photo_url = f"/uploads/{unique_name}"
 
     new_lost_item = LostItem(
-        user_id=user_id,
-        title=title,
-        category=category,
-        campus=campus,
-        location=location,
-        date_lost=date_lost,
-        description=description,
-        photo_url=photo_url
+        user_id=user_id, title=title, category=category, campus=campus,
+        location=location, date_lost=date_lost, description=description, photo_url=photo_url
     )
 
     try:
         db.session.add(new_lost_item)
         db.session.commit()
-
-        # Day 4: look for a matching found item and notify both sides
-        find_and_create_matches(new_lost_item, is_lost=True)
-
-        if not request.is_json:
-            return redirect('/')
+        
+        # Yahan hum matching function call kar rahe hain
+        find_matches(new_lost_item, is_lost=True, mail=mail)
+        
         return jsonify({"message": "Lost item reported successfully!"}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to submit report", "details": str(e)}), 500
 
-
 @app.route('/api/report-found', methods=['POST'])
 def report_found():
     user_id = session.get('user_id')
     if not user_id:
-        if not request.is_json:
-            return redirect('/login')
         return jsonify({"error": "Unauthorized. Please log in to report an item."}), 401
 
     title = request.form.get('title')
@@ -319,29 +317,23 @@ def report_found():
     photo_url = f"/uploads/{unique_name}"
 
     new_found_item = FoundItem(
-        user_id=user_id,
-        title=title,
-        category=category,
-        campus=campus,
-        location=location,
-        date_found=date_found,
-        description=description,
-        photo_url=photo_url
+        user_id=user_id, title=title, category=category, campus=campus,
+        location=location, date_found=date_found, description=description, photo_url=photo_url
     )
 
     try:
         db.session.add(new_found_item)
         db.session.commit()
-
-        # Day 4: look for a matching lost item and notify both sides
-        find_and_create_matches(new_found_item, is_lost=False)
-
-        if not request.is_json:
-            return redirect('/')
+        
+        # Yahan hum matching function call kar rahe hain
+        find_matches(new_found_item, is_lost=False, mail=mail)
+        
         return jsonify({"message": "Found item reported successfully!"}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to submit report", "details": str(e)}), 500
+
+
 
 
 @app.route('/api/items', methods=['GET'])
