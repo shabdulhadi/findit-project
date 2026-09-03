@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 from models import db, User, LostItem, FoundItem, Match, Notification
+from flask_mail import Mail
+from matching import find_matches
 
 app = Flask(__name__)
 
@@ -13,6 +15,15 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findit.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_super_secret_key_here'
+
+
+# Mail Configuration (Use your Gmail App Password here)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'muhammadhanzla7182@gmail.com'
+app.config['MAIL_PASSWORD'] = 'utfk hhuk sefl cbes'
+mail = Mail(app)
 
 # --- Email configuration (Flask-Mail) ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -255,8 +266,6 @@ def login():
 def report_lost():
     user_id = session.get('user_id')
     if not user_id:
-        if not request.is_json:
-            return redirect('/login')
         return jsonify({"error": "Unauthorized. Please log in to report an item."}), 401
 
     title = request.form.get('title')
@@ -274,21 +283,15 @@ def report_lost():
     photo_url = None
     if 'photo' in request.files:
         file = request.files['photo']
-        if file and file.filename != '':
+        if file.filename != '':
             filename = secure_filename(file.filename)
             unique_name = f"lost_{user_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
             photo_url = f"/uploads/{unique_name}"
 
     new_lost_item = LostItem(
-        user_id=user_id,
-        title=title,
-        category=category,
-        campus=campus,
-        location=location,
-        date_lost=date_lost,
-        description=description,
-        photo_url=photo_url
+        user_id=user_id, title=title, category=category, campus=campus,
+        location=location, date_lost=date_lost, description=description, photo_url=photo_url
     )
 
     try:
@@ -304,13 +307,10 @@ def report_lost():
         db.session.rollback()
         return jsonify({"error": "Failed to submit report", "details": str(e)}), 500
 
-
 @app.route('/api/report-found', methods=['POST'])
 def report_found():
     user_id = session.get('user_id')
     if not user_id:
-        if not request.is_json:
-            return redirect('/login')
         return jsonify({"error": "Unauthorized. Please log in to report an item."}), 401
 
     title = request.form.get('title')
@@ -335,14 +335,8 @@ def report_found():
     photo_url = f"/uploads/{unique_name}"
 
     new_found_item = FoundItem(
-        user_id=user_id,
-        title=title,
-        category=category,
-        campus=campus,
-        location=location,
-        date_found=date_found,
-        description=description,
-        photo_url=photo_url
+        user_id=user_id, title=title, category=category, campus=campus,
+        location=location, date_found=date_found, description=description, photo_url=photo_url
     )
 
     try:
@@ -357,6 +351,8 @@ def report_found():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to submit report", "details": str(e)}), 500
+
+
 
 
 @app.route('/api/items', methods=['GET'])
