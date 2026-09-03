@@ -46,22 +46,37 @@
   <div class="page-hero-inner">
     <span class="eyebrow">Create your account</span>
     <h1>Join FindIt</h1>
-    <p>One account works across every campus in the network. Sign up once, then report or claim items anytime.</p>
+    <p>Only official university email addresses (.edu / .edu.pk) can register — this keeps the network limited to real students.</p>
   </div>
 </section>
 
 <div class="form-wrap">
   <form class="form-card" method="POST" action="/api/signup">
 
+    {% if error %}
+    <p class="trust-note" style="border-top:none; padding-top:0; margin-top:0; margin-bottom:18px; color:var(--lost-dark); background:var(--lost-tint); padding:12px 14px; border-radius:var(--radius-sm);">{{ error }}</p>
+    {% endif %}
+
     <div class="field">
       <label for="name">Full name <span class="req">*</span></label>
-      <input type="text" id="name" name="name" placeholder="e.g. Ahmed Raza" required>
+      <input type="text" id="name" name="name" placeholder="e.g. Muhammad Abdul Hadi" required>
+    </div>
+
+    <div class="field">
+      <label for="email">University email <span class="req">*</span></label>
+      <input
+        type="email" id="email" name="email"
+        placeholder="e.g. rollno@pucit.edu.pk"
+        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu(\.[a-zA-Z]{2,})?$"
+        title="Please use a valid university email address (.edu or .edu.pk)"
+        required>
+      <span class="hint">Must end with .edu or .edu.pk</span>
     </div>
 
     <div class="row-2">
       <div class="field">
-        <label for="email">Email <span class="req">*</span></label>
-        <input type="email" id="email" name="email" placeholder="you@university.edu.pk" required>
+        <label for="university_id">University roll no / ID <span class="req">*</span></label>
+        <input type="text" id="university_id" name="university_id" placeholder="e.g. BITF24M005" required>
       </div>
       <div class="field">
         <label for="phone">Phone number <span class="req">*</span></label>
@@ -69,25 +84,19 @@
       </div>
     </div>
 
-    <div class="row-2">
-      <div class="field">
-        <label for="university_id">University ID <span class="req">*</span></label>
-        <input type="text" id="university_id" name="university_id" placeholder="e.g. PU-CS-2023-045" required>
-      </div>
-      <div class="field">
-        <label for="campus">Campus <span class="req">*</span></label>
-        <select id="campus" name="campus" required>
-          <option value="" disabled selected>Choose your campus</option>
-          <option value="PUCIT Old Campus">PUCIT Old Campus</option>
-          <option value="PUCIT New Campus">PUCIT New Campus</option>
-          <option value="University of the Punjab">University of the Punjab</option>
-          <option value="Johar Town Campus">Johar Town Campus</option>
-          <option value="PUCAD">PUCAD</option>
-          <option value="Hailey College">Hailey College</option>
-          <option value="Oriental College">Oriental College</option>
-          <option value="Pharmacy Department">Pharmacy Department</option>
-        </select>
-      </div>
+    <div class="field">
+      <label for="campus">Campus <span class="req">*</span></label>
+      <select id="campus" name="campus" required>
+        <option value="" disabled selected>Choose your campus</option>
+        <option value="PUCIT Old Campus">PUCIT Old Campus</option>
+        <option value="PUCIT New Campus">PUCIT New Campus</option>
+        <option value="University of the Punjab">University of the Punjab</option>
+        <option value="Johar Town Campus">Johar Town Campus</option>
+        <option value="PUCAD">PUCAD</option>
+        <option value="Hailey College">Hailey College</option>
+        <option value="Oriental College">Oriental College</option>
+        <option value="Pharmacy Department">Pharmacy Department</option>
+      </select>
     </div>
 
     <div class="row-2">
