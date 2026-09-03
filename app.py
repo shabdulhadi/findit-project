@@ -15,9 +15,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_super_secret_key_here'
 
 # --- Email configuration (Flask-Mail) ---
-# TODO: replace with a real Gmail address + App Password before testing.
-# App Password: Google Account > Security > 2-Step Verification > App Passwords
-# (a normal Gmail login password will NOT work here)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -37,7 +34,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-MATCH_THRESHOLD = 0.4  # tune this later if matches feel too loose or too strict
+MATCH_THRESHOLD = 0.4
 
 
 # ==========================================
@@ -64,8 +61,7 @@ def calculate_match_score(item_a, item_b):
 
 
 def send_match_email(to_email, item_title):
-    """Sends the match notification email. Failures are logged, not raised,
-    so a broken email config never blocks the report from saving."""
+    """Sends the match notification email."""
     try:
         msg = Message(
             subject="FindIt — Possible match found!",
@@ -117,7 +113,7 @@ def find_and_create_matches(new_item, is_lost):
             status='pending'
         )
         db.session.add(new_match)
-        db.session.flush()  # so new_match.id is available below, before commit
+        db.session.flush()
 
         lost_item = LostItem.query.get(lost_id)
         found_item = FoundItem.query.get(found_id)
@@ -136,7 +132,9 @@ def find_and_create_matches(new_item, is_lost):
 @app.route('/')
 @app.route('/index.html')
 def index():
-    return render_template('index.html')
+    lost_items = LostItem.query.order_by(LostItem.created_at.desc()).limit(4).all()
+    found_items = FoundItem.query.order_by(FoundItem.created_at.desc()).limit(4).all()
+    return render_template('index.html', lost_items=lost_items, found_items=found_items)
 
 @app.route('/login')
 @app.route('/login.html')
@@ -164,9 +162,10 @@ def browse_page():
 
 @app.route('/notifications')
 def notifications_page():
+    if 'user_id' not in session:
+        return redirect('/login')
     return render_template('notifications.html')
 
-# Route to serve uploaded photos
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
@@ -182,20 +181,34 @@ def signup():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
+    email = (data.get('email') or '').strip().lower()
     password = data.get('password')
     confirm_password = data.get('confirm_password')
 
-    if confirm_password and password != confirm_password:
-        return jsonify({"error": "Passwords do not match"}), 400
+    # .edu / .edu.pk domain restriction
+    if not (email.endswith('.edu') or email.endswith('.edu.pk') or '.edu.' in email):
+        error_msg = "Registration failed: Only official university email addresses (.edu / .edu.pk) are allowed."
+        if not request.is_json:
+            return render_template('signup.html', error=error_msg)
+        return jsonify({"error": error_msg}), 400
 
-    if User.query.filter_by(email=data.get('email')).first():
-        return jsonify({"error": "Email already registered"}), 400
+    if confirm_password and password != confirm_password:
+        error_msg = "Passwords do not match"
+        if not request.is_json:
+            return render_template('signup.html', error=error_msg)
+        return jsonify({"error": error_msg}), 400
+
+    if User.query.filter_by(email=email).first():
+        error_msg = "Email already registered"
+        if not request.is_json:
+            return render_template('signup.html', error=error_msg)
+        return jsonify({"error": error_msg}), 400
 
     hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
 
     new_user = User(
         name=data.get('name'),
-        email=data.get('email'),
+        email=email,
         phone=data.get('phone'),
         university_id=data.get('university_id'),
         campus=data.get('campus'),
@@ -210,6 +223,9 @@ def signup():
         return jsonify({"message": "User registered successfully!"}), 201
     except Exception as e:
         db.session.rollback()
+        error_msg = f"Failed to register user: {str(e)}"
+        if not request.is_json:
+            return render_template('signup.html', error=error_msg)
         return jsonify({"error": "Failed to register user", "details": str(e)}), 500
 
 
@@ -220,7 +236,8 @@ def login():
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    user = User.query.filter_by(email=data.get('email')).first()
+    email = (data.get('email') or '').strip().lower()
+    user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password_hash, data.get('password')):
         session['user_id'] = user.id
@@ -278,7 +295,6 @@ def report_lost():
         db.session.add(new_lost_item)
         db.session.commit()
 
-        # Day 4: look for a matching found item and notify both sides
         find_and_create_matches(new_lost_item, is_lost=True)
 
         if not request.is_json:
@@ -333,7 +349,6 @@ def report_found():
         db.session.add(new_found_item)
         db.session.commit()
 
-        # Day 4: look for a matching lost item and notify both sides
         find_and_create_matches(new_found_item, is_lost=False)
 
         if not request.is_json:
@@ -346,7 +361,6 @@ def report_found():
 
 @app.route('/api/items', methods=['GET'])
 def get_items():
-    """Powers the Browse Items page. Supports ?type=lost|found, ?campus=, ?category="""
     item_type = request.args.get('type')
     campus = request.args.get('campus')
     category = request.args.get('category')

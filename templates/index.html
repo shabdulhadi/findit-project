@@ -135,56 +135,40 @@
     <div class="panel-card">
       <div class="panel-head">
         <h2>Recently reported items</h2>
-        <a href="#" class="disabled" style="pointer-events:none; opacity:.5;">View All</a>
+        <a href="/browse">View All</a>
       </div>
       <div class="items-grid">
+        {% for item in found_items %}
         <article class="item-card">
           <div class="item-thumb">
             <span class="item-badge found">Found</span>
             <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
           </div>
           <div class="item-body">
-            <h4>Apple AirPods</h4>
-            <div class="item-meta"><span>PUCIT Old Campus</span><span>2h ago</span></div>
+            <h4>{{ item.title }}</h4>
+            <div class="item-meta"><span>{{ item.campus }}</span><span>{{ item.created_at.strftime('%b %d') if item.created_at else '' }}</span></div>
           </div>
         </article>
+        {% endfor %}
 
+        {% for item in lost_items %}
         <article class="item-card">
           <div class="item-thumb">
             <span class="item-badge lost">Lost</span>
             <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><rect x="9" y="12" width="6" height="4" rx="1"/></svg>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <div class="item-body">
-            <h4>Brown Leather Wallet</h4>
-            <div class="item-meta"><span>Hailey College</span><span>5h ago</span></div>
+            <h4>{{ item.title }}</h4>
+            <div class="item-meta"><span>{{ item.campus }}</span><span>{{ item.created_at.strftime('%b %d') if item.created_at else '' }}</span></div>
           </div>
         </article>
+        {% endfor %}
 
-        <article class="item-card">
-          <div class="item-thumb">
-            <span class="item-badge found">Found</span>
-            <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6"/><path d="M10 2v3.5L8 8v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V8l-2-2.5V2"/></svg>
-          </div>
-          <div class="item-body">
-            <h4>Blue Water Bottle</h4>
-            <div class="item-meta"><span>Johar Town Campus</span><span>1d ago</span></div>
-          </div>
-        </article>
-
-        <article class="item-card">
-          <div class="item-thumb">
-            <span class="item-badge lost">Lost</span>
-            <span class="item-save"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4Z"/></svg></span>
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.8-2 3-2s2.5.5 3 2"/><line x1="14" y1="9" x2="18" y2="9"/><line x1="14" y1="13" x2="18" y2="13"/></svg>
-          </div>
-          <div class="item-body">
-            <h4>Student ID Card</h4>
-            <div class="item-meta"><span>University of the Punjab</span><span>2d ago</span></div>
-          </div>
-        </article>
+        {% if not lost_items and not found_items %}
+        <p class="items-status">No items reported yet — be the first!</p>
+        {% endif %}
       </div>
     </div>
 
