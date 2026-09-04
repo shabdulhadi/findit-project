@@ -8,6 +8,7 @@ from flask_mail import Mail, Message
 from models import db, User, LostItem, FoundItem, Match, Notification
 from flask_mail import Mail
 from matching import find_matches
+from models import Match
 
 app = Flask(__name__)
 
@@ -404,23 +405,28 @@ def get_items():
 
 
 @app.route('/api/my-notifications', methods=['GET'])
-def get_my_notifications():
+def my_notifications():
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({"error": "Not logged in"}), 401
+        return jsonify({"error": "Unauthorized"}), 401
 
-    notifications = Notification.query.filter_by(user_id=user_id) \
-        .order_by(Notification.sent_at.desc()).all()
-
-    return jsonify([
-        {
-            "id": n.id,
-            "type": n.type,
-            "is_read": n.is_read,
-            "sent_at": n.sent_at.isoformat() if n.sent_at else None,
+    notifs = Notification.query.filter_by(user_id=user_id).order_by(Notification.sent_at.desc()).all()
+    
+    result = []
+    for n in notifs:
+        # Save original state for frontend, include match_id
+        result.append({
+            "id": n.id, 
+            "type": n.type, 
+            "is_read": n.is_read, 
+            "sent_at": n.sent_at.strftime("%Y-%m-%d %H:%M:%S")[:10],
             "match_id": n.match_id
-        } for n in notifications
-    ]), 200
+        })
+        # Mark as read in the database silently
+        n.is_read = True
+
+    db.session.commit()
+    return jsonify(result), 200
 
 
 @app.route('/api/logout', methods=['POST'])
@@ -442,6 +448,70 @@ def get_current_user():
         "campus": user.campus
     }), 200
 
+@app.route('/api/matches/<int:match_id>/confirm', methods=['POST'])
+def confirm_match(match_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    match = Match.query.get(match_id)
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
+
+    lost_item = LostItem.query.get(match.lost_item_id)
+    found_item = FoundItem.query.get(match.found_item_id)
+
+    # Security: Ensure logged-in user owns either the lost or found item
+    if lost_item.user_id != user_id and found_item.user_id != user_id:
+        return jsonify({"error": "Forbidden"}), 403
+
+    # Update statuses
+    match.status = 'confirmed'
+    lost_item.status = 'matched'
+    found_item.status = 'matched'
+    
+    db.session.commit()
+    return jsonify({"message": "Match confirmed successfully"}), 200
+
+@app.route('/api/matches/<int:match_id>/reject', methods=['POST'])
+def reject_match(match_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    match = Match.query.get(match_id)
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
+
+    lost_item = LostItem.query.get(match.lost_item_id)
+    found_item = FoundItem.query.get(match.found_item_id)
+
+    if lost_item.user_id != user_id and found_item.user_id != user_id:
+        return jsonify({"error": "Forbidden"}), 403
+
+    # Only update the match status, leave items open
+    match.status = 'rejected'
+    db.session.commit()
+    return jsonify({"message": "Match rejected"}), 200
+    app.run(debug=True)
+
+@app.route('/api/my-items', methods=['GET'])
+def my_items():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    lost = LostItem.query.filter_by(user_id=user_id).order_by(LostItem.created_at.desc()).all()
+    found = FoundItem.query.filter_by(user_id=user_id).order_by(FoundItem.created_at.desc()).all()
+
+    results = []
+    for item in lost:
+        results.append({"id": item.id, "type": "lost", "title": item.title, "status": item.status, "date": item.date_lost.strftime("%Y-%m-%d"), "photo_url": item.photo_url})
+    for item in found:
+        results.append({"id": item.id, "type": "found", "title": item.title, "status": item.status, "date": item.date_found.strftime("%Y-%m-%d"), "photo_url": item.photo_url})
+
+    return jsonify(results), 200
 
 if __name__ == '__main__':
+    
     app.run(debug=True)

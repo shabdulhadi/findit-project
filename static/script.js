@@ -259,3 +259,38 @@ async function loadNotifications() {
 if (document.getElementById('notifList')) {
   document.addEventListener('DOMContentLoaded', loadNotifications);
 }
+document.addEventListener("DOMContentLoaded", function() {
+    // Sirf navbar ke login button ko target karein
+    const loginBtn = document.getElementById("nav-login-btn");
+    
+    if (loginBtn) {
+        fetch('/api/me')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Not logged in');
+        })
+        .then(data => {
+            // Agar user logged in hai, toh button ko Naam aur Logout se replace kar do
+            loginBtn.outerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 15px;">
+                    <span style="font-weight: bold; color: #333;">Hi, ${data.name}</span>
+                    <a href="#" onclick="logoutUser()" style="color: red; text-decoration: none;">Logout</a>
+                </div>
+            `;
+        })
+        .catch(error => {
+            // User login nahi hai, as it is chhor do
+            console.log("Guest user");
+        });
+    }
+});
+
+// Logout ka function
+function logoutUser() {
+    fetch('/api/logout', { method: 'POST' })
+    .then(() => {
+        window.location.href = '/'; // Home page par wapis bhej dein
+    });
+}
