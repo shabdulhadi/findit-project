@@ -731,6 +731,53 @@ nav.site-nav a.disabled { opacity: 0.42; pointer-events: none; }
 .notif-body p { font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
 .notif-time { font-size: 0.78rem; color: var(--ink-soft); margin-top: 6px; }
 
+.notif-actions { display: flex; gap: 10px; margin-top: 12px; }
+
+.btn-confirm, .btn-reject {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+}
+
+.btn-confirm { background: var(--found); color: #fff; border-color: var(--found); }
+.btn-confirm:hover { background: var(--found-dark); }
+.btn-reject { color: var(--ink-soft); }
+.btn-reject:hover { border-color: var(--lost); color: var(--lost-dark); }
+.btn-confirm:disabled, .btn-reject:disabled { opacity: 0.6; cursor: default; }
+
+.notif-done { font-size: 0.85rem; font-weight: 600; }
+.notif-done.confirmed { color: var(--found-dark); }
+.notif-done.rejected { color: var(--ink-soft); }
+
+/* ---------- My Reports page ---------- */
+.my-item-status {
+  position: absolute;
+  bottom: 9px;
+  right: 9px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  background: var(--surface);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+
+.my-item-status.status-matched { background: var(--found-tint); color: var(--found-dark); border-color: var(--found-tint); }
+.my-item-status.status-closed { background: var(--line); color: var(--ink-soft); }
+
+/* ---------- Account menu (header, logged in) ---------- */
+.account-menu { display: flex; align-items: center; gap: 12px; }
+.account-name { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.account-logout { font-size: 0.85rem; color: var(--lost-dark); text-decoration: none; font-weight: 600; }
+.account-logout:hover { text-decoration: underline; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   header.site-header { padding: 14px 5vw; }

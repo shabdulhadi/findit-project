@@ -239,6 +239,14 @@ async function loadNotifications() {
       const info = NOTIF_MESSAGES[n.type] || { title: 'Notification', text: 'You have a new update.' };
       const card = document.createElement('div');
       card.className = 'notif-card' + (n.is_read ? '' : ' unread');
+
+      const actionsHtml = (n.type === 'match_found' && n.match_id)
+        ? `<div class="notif-actions">
+             <button class="btn-confirm" data-match-id="${n.match_id}">Confirm match</button>
+             <button class="btn-reject" data-match-id="${n.match_id}">Not mine</button>
+           </div>`
+        : '';
+
       card.innerHTML = `
         <span class="notif-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
@@ -247,50 +255,132 @@ async function loadNotifications() {
           <h4>${info.title}</h4>
           <p>${info.text}</p>
           <div class="notif-time">${timeAgo(n.sent_at)}</div>
+          ${actionsHtml}
         </div>
       `;
       list.appendChild(card);
+    });
+
+    // Wire up Confirm / Reject buttons
+    list.querySelectorAll('.btn-confirm').forEach((btn) => {
+      btn.addEventListener('click', () => handleMatchAction(btn, 'confirm'));
+    });
+    list.querySelectorAll('.btn-reject').forEach((btn) => {
+      btn.addEventListener('click', () => handleMatchAction(btn, 'reject'));
     });
   } catch (err) {
     status.textContent = 'Could not load notifications. Is the backend running?';
   }
 }
 
+async function handleMatchAction(button, action) {
+  const matchId = button.dataset.matchId;
+  const actionsDiv = button.closest('.notif-actions');
+  button.disabled = true;
+
+  try {
+    const res = await fetch(`/api/matches/${matchId}/${action}`, {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      actionsDiv.innerHTML = action === 'confirm'
+        ? '<span class="notif-done confirmed">✓ Match confirmed</span>'
+        : '<span class="notif-done rejected">Marked as not mine</span>';
+    } else {
+      alert(data.error || 'Something went wrong.');
+      button.disabled = false;
+    }
+  } catch (err) {
+    alert('Could not reach the server. Is the backend running?');
+    button.disabled = false;
+  }
+}
+
 if (document.getElementById('notifList')) {
   document.addEventListener('DOMContentLoaded', loadNotifications);
 }
-document.addEventListener("DOMContentLoaded", function() {
-    // Sirf navbar ke login button ko target karein
-    const loginBtn = document.getElementById("nav-login-btn");
-    
-    if (loginBtn) {
-        fetch('/api/me')
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Not logged in');
-        })
-        .then(data => {
-            // Agar user logged in hai, toh button ko Naam aur Logout se replace kar do
-            loginBtn.outerHTML = `
-                <div style="display: inline-flex; align-items: center; gap: 15px;">
-                    <span style="font-weight: bold; color: #333;">Hi, ${data.name}</span>
-                    <a href="#" onclick="logoutUser()" style="color: red; text-decoration: none;">Logout</a>
-                </div>
-            `;
-        })
-        .catch(error => {
-            // User login nahi hai, as it is chhor do
-            console.log("Guest user");
-        });
-    }
-});
 
-// Logout ka function
-function logoutUser() {
-    fetch('/api/logout', { method: 'POST' })
-    .then(() => {
-        window.location.href = '/'; // Home page par wapis bhej dein
+// FindIt — My Reports page: fetch /api/my-items and render with status badges.
+
+async function loadMyItems() {
+  const grid = document.getElementById('myItemsGrid');
+  const status = document.getElementById('myItemsStatus');
+  if (!grid) return;
+
+  try {
+    const res = await fetch('/api/my-items', { credentials: 'same-origin' });
+
+    if (res.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+
+    const items = await res.json();
+
+    if (!Array.isArray(items) || items.length === 0) {
+      status.textContent = "You haven't reported anything yet.";
+      return;
+    }
+
+    status.textContent = '';
+    items.forEach((item) => {
+      const badgeClass = item.type === 'found' ? 'found' : 'lost';
+      const badgeLabel = item.type === 'found' ? 'Found' : 'Lost';
+      const statusLabel = (item.status || 'open').charAt(0).toUpperCase() + (item.status || 'open').slice(1);
+      const card = document.createElement('article');
+      card.className = 'item-card';
+      card.innerHTML = `
+        <div class="item-thumb">
+          <span class="item-badge ${badgeClass}">${badgeLabel}</span>
+          <span class="my-item-status status-${item.status || 'open'}">${statusLabel}</span>
+          ${categoryIconSvg(item.category)}
+        </div>
+        <div class="item-body">
+          <h4>${item.title}</h4>
+          <div class="item-meta"><span>${item.campus || ''}</span><span>${item.date || ''}</span></div>
+        </div>
+      `;
+      grid.appendChild(card);
     });
+  } catch (err) {
+    status.textContent = 'Could not load your reports. Is the backend running?';
+  }
 }
+
+if (document.getElementById('myItemsGrid')) {
+  document.addEventListener('DOMContentLoaded', loadMyItems);
+}
+
+// FindIt — show login state in the header (name + logout instead of
+// the Login button) on every page, using the shared #nav-login-btn id.
+
+document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('nav-login-btn');
+  if (!loginBtn) return;
+
+  fetch('/api/me', { credentials: 'same-origin' })
+    .then((res) => {
+      if (res.ok) return res.json();
+      throw new Error('Not logged in');
+    })
+    .then((data) => {
+      const firstName = (data.name || '').split(' ')[0];
+      loginBtn.outerHTML = `
+        <div class="account-menu">
+          <span class="account-name">Hi, ${firstName}</span>
+          <a href="#" class="account-logout" id="logout-link">Logout</a>
+        </div>
+      `;
+      document.getElementById('logout-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        fetch('/api/logout', { method: 'POST', credentials: 'same-origin' })
+          .then(() => { window.location.href = '/'; });
+      });
+    })
+    .catch(() => {
+      // Not logged in — leave the Login button as is
+    });
+});
