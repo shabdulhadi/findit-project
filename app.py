@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, request, jsonify, session, render_template
+from flask import Flask, request, jsonify, session, render_template, redirect, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -17,13 +17,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findit.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback_dev_key')
 
+# Secure Mail Config using .env
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+
 mail = Mail(app)
 
+# Photo uploads folder setup
 base_dir = os.path.dirname(os.path.abspath(__file__))
 app.config['UPLOAD_FOLDER'] = os.path.join(base_dir, 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -45,7 +49,7 @@ def internal_error(e):
     return jsonify({"error": "Internal server error. Please try again."}), 500
 
 # ==========================================
-#        FRONTEND PAGE ROUTES
+#        FRONTEND PAGE ROUTES (GET)
 # ==========================================
 @app.route('/')
 @app.route('/index.html')
@@ -69,34 +73,48 @@ def browse_page(): return render_template('browse.html')
 @app.route('/notifications')
 def notifications_page(): return render_template('notifications.html')
 
-@app.route('/my-reports')
-def my_reports_page(): return render_template('my-reports.html')
-
 @app.route('/about')
 def about_page(): return render_template('about.html')
+
+@app.route('/my-reports')
+def my_reports_page():
+    if 'user_id' not in session:
+        return redirect('/login.html')
+    return render_template('my-reports.html')
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ==========================================
 #        BACKEND API ROUTES
 # ==========================================
 @app.route('/api/signup', methods=['POST'])
 def signup():
-    data = request.get_json()
-    
-    email = data.get('email', '').strip().lower()
+    data = request.get_json() if request.is_json else request.form
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
     name = data.get('name', '').strip()
-    password = data.get('password', '')
-    
+    email = data.get('email', '').strip().lower()
+    password = data.get('password')
+    confirm_password = data.get('confirm_password')
+
     if not email or not name or not password:
         return jsonify({"error": "Name, email, and password are required."}), 400
-        
-    if password != data.get('confirm_password'):
+
+    # Hadi's .edu restriction logic
+    if not (email.endswith('.edu') or email.endswith('.edu.pk') or '.edu.' in email):
+        error_msg = "Registration failed: Only official university email addresses (.edu / .edu.pk) are allowed."
+        return jsonify({"error": error_msg}), 400
+
+    if password != confirm_password:
         return jsonify({"error": "Passwords do not match."}), 400
-    
+
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered."}), 400
 
     hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
-
     new_user = User(
         name=name,
         email=email,
@@ -114,6 +132,7 @@ def signup():
         db.session.rollback()
         return jsonify({"error": "Registration failed."}), 500
 
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -126,24 +145,32 @@ def login():
     
     return jsonify({"error": "Invalid email or password"}), 401
 
+
 @app.route('/api/logout', methods=['POST'])
 def logout():
-    session.pop('user_id', None)
-    return jsonify({"message": "Logged out"}), 200
+    session.clear()
+    return jsonify({"message": "Logged out successfully"}), 200
+
 
 @app.route('/api/me', methods=['GET'])
 def get_current_user():
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"error": "Not logged in"}), 401
+
     user = User.query.get(user_id)
-    return jsonify({"name": user.name, "email": user.email, "campus": user.campus}), 200
+    return jsonify({
+        "name": user.name,
+        "email": user.email,
+        "campus": user.campus
+    }), 200
+
 
 @app.route('/api/report-lost', methods=['POST'])
 def report_lost():
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized. Please log in to report an item."}), 401
 
     title = request.form.get('title', '').strip()
     category = request.form.get('category', '').strip()
@@ -158,18 +185,20 @@ def report_lost():
         return jsonify({"error": "Invalid date format."}), 400
 
     photo_url = None
-    if 'photo' in request.files and request.files['photo'].filename:
+    if 'photo' in request.files and request.files['photo'].filename != '':
         file = request.files['photo']
         filename = secure_filename(file.filename)
         unique_name = f"lost_{user_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
         photo_url = f"/uploads/{unique_name}"
 
-    new_lost = LostItem(user_id=user_id, title=title, category=category, campus=campus,
-                        location=request.form.get('location', '').strip(), 
-                        date_lost=date_lost, 
-                        description=request.form.get('description', '').strip(), 
-                        photo_url=photo_url)
+    new_lost = LostItem(
+        user_id=user_id, title=title, category=category, campus=campus,
+        location=request.form.get('location', '').strip(), 
+        date_lost=date_lost, 
+        description=request.form.get('description', '').strip(), 
+        photo_url=photo_url
+    )
     try:
         db.session.add(new_lost)
         db.session.commit()
@@ -179,11 +208,12 @@ def report_lost():
         db.session.rollback()
         return jsonify({"error": "Failed to submit report."}), 500
 
+
 @app.route('/api/report-found', methods=['POST'])
 def report_found():
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized. Please log in to report an item."}), 401
 
     title = request.form.get('title', '').strip()
     category = request.form.get('category', '').strip()
@@ -206,11 +236,13 @@ def report_found():
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
     photo_url = f"/uploads/{unique_name}"
 
-    new_found = FoundItem(user_id=user_id, title=title, category=category, campus=campus,
-                          location=request.form.get('location', '').strip(), 
-                          date_found=date_found, 
-                          description=request.form.get('description', '').strip(), 
-                          photo_url=photo_url)
+    new_found = FoundItem(
+        user_id=user_id, title=title, category=category, campus=campus,
+        location=request.form.get('location', '').strip(), 
+        date_found=date_found, 
+        description=request.form.get('description', '').strip(), 
+        photo_url=photo_url
+    )
     try:
         db.session.add(new_found)
         db.session.commit()
@@ -219,6 +251,7 @@ def report_found():
     except Exception:
         db.session.rollback()
         return jsonify({"error": "Failed to submit report."}), 500
+
 
 @app.route('/api/items', methods=['GET'])
 def get_items():
@@ -235,10 +268,23 @@ def get_items():
         lost_query = lost_query.filter_by(category=category)
         found_query = found_query.filter_by(category=category)
 
-    results = [{"id": i.id, "type": "lost", "title": i.title, "campus": i.campus, "category": i.category, "date": i.date_lost.strftime("%Y-%m-%d"), "photo_url": i.photo_url} for i in lost_query.all()]
-    results += [{"id": i.id, "type": "found", "title": i.title, "campus": i.campus, "category": i.category, "date": i.date_found.strftime("%Y-%m-%d"), "photo_url": i.photo_url} for i in found_query.all()]
-    
+    results = []
+    for item in lost_query.order_by(LostItem.created_at.desc()).all():
+        results.append({
+            "id": item.id, "type": "lost", "title": item.title, "category": item.category,
+            "campus": item.campus, "location": item.location, "photo_url": item.photo_url,
+            "created_at": item.created_at.isoformat() if item.created_at else None
+        })
+    for item in found_query.order_by(FoundItem.created_at.desc()).all():
+        results.append({
+            "id": item.id, "type": "found", "title": item.title, "category": item.category,
+            "campus": item.campus, "location": item.location, "photo_url": item.photo_url,
+            "created_at": item.created_at.isoformat() if item.created_at else None
+        })
+
+    results.sort(key=lambda x: x['created_at'] or '', reverse=True)
     return jsonify(results), 200
+
 
 @app.route('/api/my-items', methods=['GET'])
 def my_items():
@@ -249,10 +295,24 @@ def my_items():
     lost = LostItem.query.filter_by(user_id=user_id).order_by(LostItem.created_at.desc()).all()
     found = FoundItem.query.filter_by(user_id=user_id).order_by(FoundItem.created_at.desc()).all()
 
-    results = [{"id": i.id, "type": "lost", "title": i.title, "status": i.status, "date": i.date_lost.strftime("%Y-%m-%d"), "photo_url": i.photo_url} for i in lost]
-    results += [{"id": i.id, "type": "found", "title": i.title, "status": i.status, "date": i.date_found.strftime("%Y-%m-%d"), "photo_url": i.photo_url} for i in found]
+    results = []
+    for item in lost:
+        results.append({
+            "id": item.id, "type": "lost", "title": item.title, "status": item.status,
+            "category": item.category, "campus": item.campus,
+            "date": item.date_lost.strftime("%Y-%m-%d") if item.date_lost else None,
+            "photo_url": item.photo_url
+        })
+    for item in found:
+        results.append({
+            "id": item.id, "type": "found", "title": item.title, "status": item.status,
+            "category": item.category, "campus": item.campus,
+            "date": item.date_found.strftime("%Y-%m-%d") if item.date_found else None,
+            "photo_url": item.photo_url
+        })
 
     return jsonify(results), 200
+
 
 @app.route('/api/my-notifications', methods=['GET'])
 def my_notifications():
@@ -261,20 +321,30 @@ def my_notifications():
         return jsonify({"error": "Unauthorized"}), 401
 
     notifs = Notification.query.filter_by(user_id=user_id).order_by(Notification.sent_at.desc()).all()
-    result = [{"id": n.id, "type": n.type, "is_read": n.is_read, "sent_at": n.sent_at.strftime("%Y-%m-%d %H:%M:%S")[:10], "match_id": n.match_id} for n in notifs]
-    
-    for n in notifs: n.is_read = True
+    result = []
+    for n in notifs:
+        result.append({
+            "id": n.id,
+            "type": n.type,
+            "is_read": n.is_read,
+            "sent_at": n.sent_at.isoformat() if n.sent_at else None,
+            "match_id": n.match_id
+        })
+        n.is_read = True
+
     db.session.commit()
-    
     return jsonify(result), 200
+
 
 @app.route('/api/matches/<int:match_id>/confirm', methods=['POST'])
 def confirm_match(match_id):
     user_id = session.get('user_id')
-    if not user_id: return jsonify({"error": "Unauthorized"}), 401
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
 
     match = Match.query.get(match_id)
-    if not match: return jsonify({"error": "Match not found"}), 404
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
 
     lost_item = LostItem.query.get(match.lost_item_id)
     found_item = FoundItem.query.get(match.found_item_id)
@@ -285,16 +355,20 @@ def confirm_match(match_id):
     match.status = 'confirmed'
     lost_item.status = 'matched'
     found_item.status = 'matched'
+
     db.session.commit()
-    return jsonify({"message": "Match confirmed"}), 200
+    return jsonify({"message": "Match confirmed successfully"}), 200
+
 
 @app.route('/api/matches/<int:match_id>/reject', methods=['POST'])
 def reject_match(match_id):
     user_id = session.get('user_id')
-    if not user_id: return jsonify({"error": "Unauthorized"}), 401
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
 
     match = Match.query.get(match_id)
-    if not match: return jsonify({"error": "Match not found"}), 404
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
 
     lost_item = LostItem.query.get(match.lost_item_id)
     found_item = FoundItem.query.get(match.found_item_id)
@@ -305,6 +379,7 @@ def reject_match(match_id):
     match.status = 'rejected'
     db.session.commit()
     return jsonify({"message": "Match rejected"}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
