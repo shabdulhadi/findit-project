@@ -53,17 +53,24 @@ def internal_error(e):
 # ==========================================
 @app.route('/')
 @app.route('/index.html')
-def index(): return render_template('index.html')
+def index():
+    lost_items = LostItem.query.filter_by(status='open').order_by(LostItem.created_at.desc()).limit(6).all()
+    found_items = FoundItem.query.filter_by(status='open').order_by(FoundItem.created_at.desc()).limit(6).all()
+    return render_template('index.html', lost_items=lost_items, found_items=found_items)
 
+@app.route('/login')
 @app.route('/login.html')
 def login_page(): return render_template('login.html')
 
+@app.route('/signup')
 @app.route('/signup.html')
 def signup_page(): return render_template('signup.html')
 
+@app.route('/report-lost')
 @app.route('/report-lost.html')
 def report_lost_page(): return render_template('report-lost.html')
 
+@app.route('/report-found')
 @app.route('/report-found.html')
 def report_found_page(): return render_template('report-found.html')
 
@@ -80,7 +87,7 @@ def about_page(): return render_template('about.html')
 def my_reports_page():
     if 'user_id' not in session:
         return redirect('/login.html')
-    return render_template('my-reports.html')
+    return render_template('myreports.html')
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -100,8 +107,15 @@ def signup():
     password = data.get('password')
     confirm_password = data.get('confirm_password')
 
+    phone = data.get('phone', '').strip()
+    university_id = data.get('university_id', '').strip()
+    campus = data.get('campus', '').strip()
+
     if not email or not name or not password:
         return jsonify({"error": "Name, email, and password are required."}), 400
+
+    if not phone or not university_id or not campus:
+        return jsonify({"error": "Phone, university ID, and campus are required."}), 400
 
     # Hadi's .edu restriction logic
     if not (email.endswith('.edu') or email.endswith('.edu.pk') or '.edu.' in email):
@@ -118,9 +132,9 @@ def signup():
     new_user = User(
         name=name,
         email=email,
-        phone=data.get('phone', '').strip(),
-        university_id=data.get('university_id', '').strip(),
-        campus=data.get('campus', '').strip(),
+        phone=phone,
+        university_id=university_id,
+        campus=campus,
         password_hash=hashed_pw
     )
 
@@ -135,14 +149,22 @@ def signup():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.get_json()
+    data = request.get_json(silent=True) if request.is_json else request.form
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
     email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({"error": "Email and password are required."}), 400
+
     user = User.query.filter_by(email=email).first()
 
-    if user and check_password_hash(user.password_hash, data.get('password', '')):
+    if user and check_password_hash(user.password_hash, password):
         session['user_id'] = user.id
         return jsonify({"message": "Login successful"}), 200
-    
+
     return jsonify({"error": "Invalid email or password"}), 401
 
 
@@ -257,6 +279,7 @@ def report_found():
 def get_items():
     campus = request.args.get('campus', '').strip()
     category = request.args.get('category', '').strip()
+    item_type = request.args.get('type', '').strip().lower()
 
     lost_query = LostItem.query.filter_by(status='open')
     found_query = FoundItem.query.filter_by(status='open')
@@ -269,18 +292,20 @@ def get_items():
         found_query = found_query.filter_by(category=category)
 
     results = []
-    for item in lost_query.order_by(LostItem.created_at.desc()).all():
-        results.append({
-            "id": item.id, "type": "lost", "title": item.title, "category": item.category,
-            "campus": item.campus, "location": item.location, "photo_url": item.photo_url,
-            "created_at": item.created_at.isoformat() if item.created_at else None
-        })
-    for item in found_query.order_by(FoundItem.created_at.desc()).all():
-        results.append({
-            "id": item.id, "type": "found", "title": item.title, "category": item.category,
-            "campus": item.campus, "location": item.location, "photo_url": item.photo_url,
-            "created_at": item.created_at.isoformat() if item.created_at else None
-        })
+    if item_type != 'found':
+        for item in lost_query.order_by(LostItem.created_at.desc()).all():
+            results.append({
+                "id": item.id, "type": "lost", "title": item.title, "category": item.category,
+                "campus": item.campus, "location": item.location, "photo_url": item.photo_url,
+                "created_at": item.created_at.isoformat() if item.created_at else None
+            })
+    if item_type != 'lost':
+        for item in found_query.order_by(FoundItem.created_at.desc()).all():
+            results.append({
+                "id": item.id, "type": "found", "title": item.title, "category": item.category,
+                "campus": item.campus, "location": item.location, "photo_url": item.photo_url,
+                "created_at": item.created_at.isoformat() if item.created_at else None
+            })
 
     results.sort(key=lambda x: x['created_at'] or '', reverse=True)
     return jsonify(results), 200

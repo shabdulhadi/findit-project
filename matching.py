@@ -2,6 +2,12 @@ from difflib import SequenceMatcher
 from models import db, Match, Notification, FoundItem, LostItem, User
 from flask_mail import Message
 
+# Minimum weighted similarity score (title + description + date bonus) required
+# to consider two reports a match. Raised from 0.4 -> 0.55 after testing showed
+# 0.4 let through weak false-positive matches (e.g. unrelated items that only
+# shared a common word and were reported around the same time).
+MATCH_THRESHOLD = 0.55
+
 def get_similarity(a, b):
     if not a or not b: return 0.0
     return SequenceMatcher(None, a.lower(), b.lower()).ratio()
@@ -25,7 +31,7 @@ def find_matches(new_item, is_lost, mail):
         if date_diff <= 3:
             match_score += 0.1
 
-        if match_score >= 0.4:
+        if match_score >= MATCH_THRESHOLD:
             lost_id = new_item.id if is_lost else candidate.id
             found_id = candidate.id if is_lost else new_item.id
 
@@ -48,7 +54,7 @@ def find_matches(new_item, is_lost, mail):
     db.session.commit()
 
 def send_match_email(to_email, item_title, mail):
-    msg = Message("FindIt: Possible Match Found!", sender="your_email@gmail.com", recipients=[to_email])
+    msg = Message("FindIt: Possible Match Found!", recipients=[to_email])
     msg.body = f"Good news — we found a possible match for '{item_title}'. Log in to FindIt to see the details."
     try:
         mail.send(msg)
